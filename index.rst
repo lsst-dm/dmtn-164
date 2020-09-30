@@ -215,6 +215,9 @@ multiple callbacks or anything too complicated.
 At this point, we should be able to spawn a lab with a name from the auth information.
 This should use the configuration available from the YAML file.
 
+This can be done by implementing a Gafaelfawr authenticator class and using that for
+auth.
+
 Lab Volume Mounting
 ===================
 
@@ -255,6 +258,9 @@ At this point, we should have some ways to do configuration of the Hub (via the 
 file) and the Lab (via mounted configmaps).  We can determine who the user is, and
 direct the right user to the right Lab.
 
+This can probably be done by using the existing KubeSpawner.volumes and
+KubeSpawner.volume_mount options.
+
 Stage Two
 =========
 
@@ -285,6 +291,10 @@ The scanner will output this file on disk.  By making a file on disk, this easil
 makes this a data passing problem rather than a library problem.  The prepuller can
 then read the file for the source of things to prepull.
 
+The scanner is something we can implement as a separate process from the Hub, that
+communicates its results by updating the JupyterHub YAML file.  This can either be
+a process that runs in the JupyterHub container, or a separate pod.
+
 Prepuller
 =========
 
@@ -293,6 +303,10 @@ This reads the file output of the scanner, and inspects nodes in kubernetes to s
 which images are available on which nodes.  For images in the file the scanner
 generated, start pods to download those images.  At the end of that, create a NEW
 YAML file that contains the images that are prepulled on all nodes.
+
+The prepuller is something we can implement as a separate process from the Hub,
+and updates the JupyterHub YAML file.  This can be a process that runs in the Hub
+container or a separate pod, and will spawn other pods to download the images.
 
 Hub Options Form
 ================
@@ -307,6 +321,9 @@ be another YAML key in the file that is passed through the pipeline no matter wh
 
 This allows also for easy static configuration of an options page for external
 parties who want an options form, but aren't updating images frequently.
+
+We can use the existing Kubespawner.options_form as a callable to implement the
+options form.  This is a hook that is called with the spawner instance.
 
 Stack Image Builder
 ===================
@@ -324,6 +341,10 @@ We should create a GitHub action that contains the business logic to trim the
 images on dockerhub.  This allows it to run in a centralized place, since we
 don't want to run this per cluster, but match it with where the images are built.
 
+There should be one reaper per set of images, not multiple reapers looking around
+for things to reap.  If possible, we should have a good audit trail of the image
+deletions that are hopefully bubbled up through a GitHub action.
+
 Stage Three
 ===========
 
@@ -337,6 +358,13 @@ Enable NamespacedKubeSpawner to spawn labs in individual namespaces.
 
 This may require some changes to previous work, but otherwise should be fairly
 straightforward.
+
+There are multiple PRs against JupyterHub by different teams to enable this.
+We should pick one, either ours or someone elses, and get it over the finish
+line.  Being able to get the NamespacedKubeSpawner into Jupyter is key, and
+by enabling other groups to use the same code that we are using, we will be
+getting more options for free over time.  We can always also propose more PRs
+to make the NamespaceKubeSpawner better over time.
 
 Arbitrary Resource Creation
 ===========================
@@ -353,7 +381,18 @@ Once Labs are spawned in new namespaces, all those resources will need to be
 created when the namespace is created, we can't rely on the zero to jupyterhub
 chart to create those resources in the shared namespace.
 
+We should do this by injecting YAML, rather than special cases for every different
+type of resource.  This will make it very easy to create arbitrary resources, even
+CRDs or other resource types that haven't been invented yet.
 
+The kubernetes python API provides a way to take arbitrary YAML and basically
+do a kubectl apply on it.  This can be done by calling the
+kubernetes.util.create_from_yaml function.
+
+We can insert this resource creation by using the Kubespawner.modify_pod_hook,
+which is a callable that is called with the spawner object, and the pod object
+to be created.  There are also hooks for after the spawner stops (post_stop_hook)
+and before the spawner starts (pre_start_hook).
 
 .. .. rubric:: References
 
