@@ -42,16 +42,6 @@
 
 .. sectnum::
 
-.. TODO: Delete the note below before merging new content to the master branch.
-
-.. note::
-
-   **This technote is not yet published.**
-
-   Starting from zero, how to get back to where we are, applying what we've learned to make a cleaner architecture.
-
-.. Add content here.
-
 Purpose of this architecture document
 =====================================
 
