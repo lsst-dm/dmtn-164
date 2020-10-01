@@ -197,7 +197,7 @@ Stage One
 =========
 
 Hub Configuration
-=================
+-----------------
 
 All the configuration for the hub should be read from a single yaml file that is mounted
 into the container from a configmap.  This allows us to change the configuration while
@@ -207,7 +207,7 @@ and many changes to the chart, and at the very least restarting the container.
 Add this configmap to the chart and mount it in the hub.
 
 Auth
-====
+----
 
 Next, let's do the authenticator.  It doesn't need to support anything but Gafaelfawr,
 and since all the headers should be present on the request, this shouldn't require
@@ -220,7 +220,7 @@ This can be done by implementing a Gafaelfawr authenticator class and using that
 auth.
 
 Lab Volume Mounting
-===================
+-------------------
 
 Now let's allow for the Lab containers that are spawned to have arbitrary volumes.
 
@@ -268,7 +268,7 @@ Stage Two
 Now we can get ready for multiple and larger images.
 
 Scanner
-=======
+-------
 
 The scanner is a standalone python process that does NOT run in the Hub.  It can be
 started via a crontab in the hub, or running a long running process in the container.
@@ -297,7 +297,7 @@ communicates its results by updating the JupyterHub YAML file.  This can either 
 a process that runs in the JupyterHub container, or a separate pod.
 
 Prepuller
-=========
+---------
 
 The prepuller is also another standalone binary that runs in the hub container.
 This reads the file output of the scanner, and inspects nodes in kubernetes to see
@@ -310,7 +310,7 @@ and updates the JupyterHub YAML file.  This can be a process that runs in the Hu
 container or a separate pod, and will spawn other pods to download the images.
 
 Hub Options Form
-================
+----------------
 
 The Hub Options form reads the YAML file that the prepuller outputs (or any other
 process, since it's just a data file), and applies a template to generate an HTML
@@ -327,7 +327,7 @@ We can use the existing Kubespawner.options_form as a callable to implement the
 options form.  This is a hook that is called with the spawner instance.
 
 Stack Image Builder
-===================
+-------------------
 
 We should create a GitHub action that runs daily to see if there's a new stack
 image available, and build the Lab on top of it and push it to DockerHub.  It's
@@ -336,7 +336,7 @@ more easily.  We only have one connection point with Jenkins which is the stack
 container, and we only need to know when a new one is created.
 
 Stack Image Reaper
-==================
+------------------
 
 We should create a GitHub action that contains the business logic to trim the
 images on dockerhub.  This allows it to run in a centralized place, since we
@@ -353,7 +353,7 @@ Now we can create larger images, that are prepulled with an options form.  Now
 we want to get into the multinamespace factors and advanced configuration.
 
 NamespacedKubeSpawner
-=====================
+---------------------
 
 Enable NamespacedKubeSpawner to spawn labs in individual namespaces.
 
@@ -368,7 +368,7 @@ getting more options for free over time.  We can always also propose more PRs
 to make the NamespaceKubeSpawner better over time.
 
 Arbitrary Resource Creation
-===========================
+---------------------------
 
 As a part of the lab creation process, first ensure that a list of resources
 exist.  This list can be read from the Hub YAML file as sub-documents.  A list
