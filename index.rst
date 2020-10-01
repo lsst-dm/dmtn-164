@@ -222,19 +222,18 @@ directly into the pod YAML opaquely from the hub.
 
 One subdocument will be volumes, and one is volumeMounts:
 
-```
-volumes:
+.. code-block:: yaml
+  volumes:
   - name: volume1
     emptyDir: {}
   - name: volume2
     persistentVolumeClaim:
       claimName: made-up-pvc-name
-volumeMounts:
+  volumeMounts:
   - name: volume1
     mountPath: /scratch
   - name: volume2
     mountPath: /datasets
-```
 
 This will allow the Hub to create pods that can mount anything - volumes, configmaps,
 secrets, etc.  This won't allow for injection of environment variables, but will allow
@@ -266,8 +265,8 @@ started via a crontab in the hub, or running a long running process in the conta
 The scanner checks external information, such as the tags in docker, or external files,
 and outputs a YAML file that contains a list of images.  The output should look like:
 
-```
-images:
+.. code-block:: yaml
+  images:
   - name: Recommended (this is weekly 38)
     image: docker.io/lsstsqre/sciplatlab:weekly_38
   - name: Weekly 38
@@ -276,7 +275,6 @@ images:
     image: docker.io/lsstsqre/sciplatlab:weekly_37
   - name: Daily 9/20
     image: docker.io/lsstsqre/sciplatlab:d2020_09_20
-```
 
 The scanner will output this file on disk.  By making a file on disk, this easily
 makes this a data passing problem rather than a library problem.  The prepuller can
