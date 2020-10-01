@@ -222,7 +222,7 @@ directly into the pod YAML opaquely from the hub.
 
 One subdocument will be volumes, and one is volumeMounts:
 
-.. code-block:: yaml
+.. code-block::
   volumes:
   - name: volume1
     emptyDir: {}
@@ -265,7 +265,7 @@ started via a crontab in the hub, or running a long running process in the conta
 The scanner checks external information, such as the tags in docker, or external files,
 and outputs a YAML file that contains a list of images.  The output should look like:
 
-.. code-block:: yaml
+.. code-block::
   images:
   - name: Recommended (this is weekly 38)
     image: docker.io/lsstsqre/sciplatlab:weekly_38
