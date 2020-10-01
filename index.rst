@@ -381,6 +381,44 @@ which is a callable that is called with the spawner object, and the pod object
 to be created.  There are also hooks for after the spawner stops (post_stop_hook)
 and before the spawner starts (pre_start_hook).
 
+Culler
+------
+
+We need a working culler that will delete lab pods after a certain period of
+time.  If we aren't worried if the pods are active, then it is as easy as seeing
+when the pods were spawned.  If this requires seeing when the pods were last
+active, we should figure out how to make sure that works in the new architecture
+as this is a feature provided by JupyterHub.
+
+Further Work
+============
+
+Quota Service
+-------------
+
+Currently, all the quota restrictions are applied via the user namespace that
+is created that holds the lab pod.  This limits the user from accidentally
+eating up all the resources in the cluster (via something like dask).
+
+The other part of the quota is the machine size, although this is more against
+the counting against the quota, but this machine size is used in other places,
+since copying the size and image is the quickest way to get to a similar
+environment for the dask execution.
+
+While setting a default size for a namespace is a good idea, and we should do
+that, this is only the beginning of the quota and scaling design.  The general
+problem comes that Nublado can only really do things at spawn time, and during
+the existence of a lab pod, overall usage on the system may change.
+
+My suggestion is to have a quota service that runs completely outside of Nublado.
+This could alter the resources on the namespace, growing them or shrinking them.
+This quota service could also provide policing and help for quota issues that
+Nublado doesn't handle, things like in flight TAP queries, file system quotas,
+etc.  We will want a central portal for both users to see where they are, and
+for admins and operators to temporarily change the numbers for particular users
+for a period of time.  This could be thought of as a "processing allocation
+service."
+
 .. .. rubric:: References
 
 .. Make in-text citations with: :cite:`bibkey`.
