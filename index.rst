@@ -140,6 +140,17 @@ ensure our code is of good quality, but help others contribute as well.  Having
 a way to make a change, build it, test it, and deploy it will enable people
 to feel safe making changes without regressions.
 
+Another thing to mention is metrics.  Both JupyterHub and JupyterLab have built
+in prometheus monitoring of a set of metrics on an HTTP endpoint.  These metrics
+can be gathered by a telegraf instance from InfluxDB to store these metrics in
+a graphable way.  Since this is a pull rather than a push, anyone can retrieve
+these metrics for tests or other purposes.
+
+As we add components we should think about adding metrics about what choices
+were made, time spent, or errors encountered as applicable.  It looks like new
+metrics can be added, although there might not be a way to add a metric outside
+of a PR (see https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/metrics.py).
+
 The Picture
 ===========
 
