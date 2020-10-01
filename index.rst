@@ -153,6 +153,7 @@ to feel safe making changes without regressions.
 The Picture
 ===========
 
+.. figure:: /jupyterhub_kubernetes_architecture.png
 
 Suggested Development Milestones and Order
 ==========================================
