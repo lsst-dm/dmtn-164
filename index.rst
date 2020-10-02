@@ -45,33 +45,19 @@
 Purpose of this architecture document
 =====================================
 
-At the beginning of the project, we didn't know that Jupyter Notebooks would
-gain so much traction.  Popular in scientific, academic, and corporate environments,
-the code has been improved on but many of its users to add new features and fix
-bugs.  Since we don't have the resources to build such a platform from scratch
-and maintain it, we want to leverage what the community is doing as much as possible.
+We first launched the project called now called nublado in 2017, as part of an investigation into whether JupyterLab would form an appropriate basis with which to create the Notebook Aspect of the Science Platform.
+The service rapidly became very popular among project staff some of whom quickly became reliant on it for their daily work. 
+We thus found ourself in production with a prototype based in turn on a rapidly evolving open-source codebase, and needing to prioritise user demands and service availability. 
+Additionally the service got adopted by critical path teams engaged in commissioning activities which resulted in a number of high availability deployments at the summit and laboratory sites. 
 
-After the wild success of Nublado (what we call the Jupyter notebook portion of
-the science platform), it rapidly grew a lot of features organically to meet
-our growing needs, both features and operationally.
+In light of our experience, we want to undertake significant refactoring of the codebase for the following reasons:
 
-While some of the work has been pushed upstream, we have a lot of features that
-are very useful to us, and could be useful to others, but tie in too tightly to
-our code to be taken upstream.
+- Our upstream dependencies, particularly JupyterHub and JupyterLab have significantly evolved since the initial architecture, which means we both have unecessary code and have difficulty making upstream contributions and staying current with upstream
+- Following multiple deployments, we understand better the axes of configuration and have concluded that the current organisation of the codebase would make it hard for contributors outside the project to modify it for their own use. 
+- As a prototype, the current codebase lacks necessary developer practices such as unit tests, automated build-test and instrumentation
 
-Therefore, with the ability of hindsight, we write this document to think about
-how we can do it starting from scratch, knowing all we know now.  Many of these
-recommendations are based on experiences with the previous codebase, but I won't
-be calling out specifically an apples to apples comparison of each feature, for
-the sake of brevity.
+Addressing these problems requires significant refactoring. Given the relatively small size of the codebase and the significant architectural changes, we are undertaking a blank slate rewrite in order to avoid impacting the robustness and support level of the current production deployments. 
 
-Goals of the rewrite:
-
-# Have a simpler codebase due to less feature churn
-# Enable more developers to contribute to the code, both in the project,
-and external to the project
-# Develop our existing features in a way they can be taken upstream as much
-as possible
 
 Major features that we need, but aren't in upstream Jupyter
 ===========================================================
