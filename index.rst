@@ -46,18 +46,17 @@ Purpose of this architecture document
 =====================================
 
 We first launched the project called now called nublado in 2017, as part of an investigation into whether JupyterLab would form an appropriate basis with which to create the Notebook Aspect of the Science Platform.
-The service rapidly became very popular among project staff some of whom quickly became reliant on it for their daily work. 
-We thus found ourself in production with a prototype based in turn on a rapidly evolving open-source codebase, and needing to prioritise user demands and service availability. 
-Additionally the service got adopted by critical path teams engaged in commissioning activities which resulted in a number of high availability deployments at the summit and laboratory sites. 
+The service rapidly became very popular among project staff some of whom quickly became reliant on it for their daily work.
+We thus found ourself in production with a prototype based in turn on a rapidly evolving open-source codebase, and needing to prioritise user demands and service availability.
+Additionally the service got adopted by critical path teams engaged in commissioning activities which resulted in a number of high availability deployments at the summit and laboratory sites.
 
 In light of our experience, we want to undertake significant refactoring of the codebase for the following reasons:
 
-- Our upstream dependencies, particularly JupyterHub and JupyterLab have significantly evolved since the initial architecture, which means we both have unecessary code and have difficulty making upstream contributions and staying current with upstream
-- Following multiple deployments, we understand better the axes of configuration and have concluded that the current organisation of the codebase would make it hard for contributors outside the project to modify it for their own use. 
-- As a prototype, the current codebase lacks necessary developer practices such as unit tests, automated build-test and instrumentation
+#. Our upstream dependencies, particularly JupyterHub and JupyterLab have significantly evolved since the initial architecture, which means we both have unecessary code and have difficulty making upstream contributions and staying current with upstream
+#. Following multiple deployments, we understand better the axes of configuration and have concluded that the current organisation of the codebase would make it hard for contributors outside the project to modify it for their own use.
+#. As a prototype, the current codebase lacks necessary developer practices such as unit tests, automated build-test and instrumentation
 
-Addressing these problems requires significant refactoring. Given the relatively small size of the codebase and the significant architectural changes, we are undertaking a blank slate rewrite in order to avoid impacting the robustness and support level of the current production deployments. 
-
+Addressing these problems requires significant refactoring. Given the relatively small size of the codebase and the significant architectural changes, we are undertaking a blank slate rewrite in order to avoid impacting the robustness and support level of the current production deployments.
 
 Major features that we need, but aren't in upstream Jupyter
 ===========================================================
@@ -65,35 +64,35 @@ Major features that we need, but aren't in upstream Jupyter
 Here is a general list of the things that Nublado does that normal JupyterHub
 and JupyterLab don't do (at least out of the box):
 
-# Gafaelfawr auth support - this is our internal auth proxy that handles
-login and authentication, and returns headers that contain the userid, email,
-and other important information.
+#. Gafaelfawr auth support - this is our internal auth proxy that handles
+   login and authentication, and returns headers that contain the userid, email,
+   and other important information.
 
-# Interactive Options Form - JupyterHub is normally configured to only load one
-image as a lab.  In Nublado there's an interactive options form that allows
-the end user to select from a list of images, and handle other configuration
-options at startup.
+#. Interactive Options Form - JupyterHub is normally configured to only load one
+   image as a lab.  In Nublado there's an interactive options form that allows
+   the end user to select from a list of images, and handle other configuration
+   options at startup.
 
-# Individual namespaces - JupyterHub normally creates all labs in the same
-namespace in which it is running.  By creating a namespace per user, we can
-further isolate and control the environment at the kubernetes layer.
+#. Individual namespaces - JupyterHub normally creates all labs in the same
+   namespace in which it is running.  By creating a namespace per user, we can
+   further isolate and control the environment at the kubernetes layer.
 
-# Creating additional Kubernetes resources - JupyterHub will only start a lab
-pod, but we could also allow for more and different kubernetes resources to
-be ensured at lab creation time.
+#. Creating additional Kubernetes resources - JupyterHub will only start a lab
+   pod, but we could also allow for more and different kubernetes resources to
+   be ensured at lab creation time.
 
-# Lab Configuration - Nublado injects a lot of environment variables
-to configure the lab to point to other parts of the environment, such as TAP
-and Firefly.  Some of these configuration options are needed to configure
-extensions and plugins.  Some of these configuration options are tailored
-based on user information, or input from the interactive spawner.
+#. Lab Configuration - Nublado injects a lot of environment variables
+   to configure the lab to point to other parts of the environment, such as TAP
+   and Firefly.  Some of these configuration options are needed to configure
+   extensions and plugins.  Some of these configuration options are tailored
+   based on user information, or input from the interactive spawner.
 
-# Lab Pod Volumes - Nublado configures the pod to mount certain NFS paths
-so that the Lab can interact with the datasets and home directories.
+#. Lab Pod Volumes - Nublado configures the pod to mount certain NFS paths
+   so that the Lab can interact with the datasets and home directories.
 
-# Prepuller - Our images are pretty big, so this can cause issues when
-needing to spawn labs.  It's best if images are already downloaded and
-extracted on the kubernetes nodes to reduce spawning times.
+#. Prepuller - Our images are pretty big, so this can cause issues when
+   needing to spawn labs.  It's best if images are already downloaded and
+   extracted on the kubernetes nodes to reduce spawning times.
 
 Many of these could be useful to other people and depending on the feature,
 could be either pushed to upstream Jupyter or put into extensions for the
@@ -219,17 +218,19 @@ directly into the pod YAML opaquely from the hub.
 
 One subdocument will be volumes, and one is volumeMounts:
 
-volumes:
-  - name: volume1
-    emptyDir: {}
-  - name: volume2
-    persistentVolumeClaim:
-      claimName: made-up-pvc-name
-volumeMounts:
-  - name: volume1
-    mountPath: /scratch
-  - name: volume2
-    mountPath: /datasets
+.. code-block:: yaml
+
+   volumes:
+     - name: volume1
+       emptyDir: {}
+     - name: volume2
+       persistentVolumeClaim:
+         claimName: made-up-pvc-name
+   volumeMounts:
+     - name: volume1
+       mountPath: /scratch
+     - name: volume2
+       mountPath: /datasets
 
 This will allow the Hub to create pods that can mount anything - volumes, configmaps,
 secrets, etc.  This won't allow for injection of environment variables, but will allow
@@ -261,15 +262,17 @@ started via a crontab in the hub, or running a long running process in the conta
 The scanner checks external information, such as the tags in docker, or external files,
 and outputs a YAML file that contains a list of images.  The output should look like:
 
-images:
-  - name: Recommended (this is weekly 38)
-    image: docker.io/lsstsqre/sciplatlab:weekly_38
-  - name: Weekly 38
-    image: docker.io/lsstsqre/sciplatlab:weekly_38
-  - name: Weekly 37
-    image: docker.io/lsstsqre/sciplatlab:weekly_37
-  - name: Daily 9/20
-    image: docker.io/lsstsqre/sciplatlab:d2020_09_20
+.. code-block:: yaml
+
+   images:
+     - name: Recommended (this is weekly 38)
+       image: docker.io/lsstsqre/sciplatlab:weekly_38
+     - name: Weekly 38
+       image: docker.io/lsstsqre/sciplatlab:weekly_38
+     - name: Weekly 37
+       image: docker.io/lsstsqre/sciplatlab:weekly_37
+     - name: Daily 9/20
+       image: docker.io/lsstsqre/sciplatlab:d2020_09_20
 
 The scanner will output this file on disk.  By making a file on disk, this easily
 makes this a data passing problem rather than a library problem.  The prepuller can
