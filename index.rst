@@ -139,7 +139,7 @@ of a PR (see https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/met
 The Picture
 ===========
 
-.. figure:: /_static/jupyterhub_kubernetes_architecture.png
+.. figure:: /_static/architecture.png
 
 Suggested Development Milestones and Order
 ==========================================

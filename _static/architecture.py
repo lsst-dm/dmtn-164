@@ -1,10 +1,19 @@
+import os
+
 from diagrams import Diagram
 from diagrams.k8s.compute import DaemonSet, Deployment, Pod, ReplicaSet
 from diagrams.k8s.network import Ingress, Service
 from diagrams.k8s.podconfig import ConfigMap
 from diagrams.k8s.group import Namespace
 
-with Diagram("JupyterHub Kubernetes Architecture", show=False):
+os.chdir(os.path.dirname(__file__))
+
+with Diagram(
+    "JupyterHub Kubernetes Architecture",
+    show=False,
+    filename="architecture",
+    outformat="png",
+):
     nublado_ns = Namespace("nublado")
     pp_net = Ingress("/pp")
     nb_net = Ingress("/nb")
